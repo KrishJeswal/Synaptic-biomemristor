@@ -201,7 +201,7 @@
     }
 
     .card-label {
-      font-size: 11px;
+      font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 0.18em;
       color: var(--text-muted);
@@ -218,7 +218,7 @@
 
     .card-title {
       margin-top: 4px;
-      font-size: 15px;
+      font-size: 18px;
       font-weight: 600;
       color: #f9fafb;
     }
@@ -234,7 +234,7 @@
 
     .card-body {
       margin-top: 6px;
-      font-size: 12px;
+      font-size: 16px;
       line-height: 1.5;
       color: var(--text-muted);
     }
@@ -257,11 +257,11 @@
 
     /* Abstract card wider */
     .abstract-card .card-title {
-      font-size: 16px;
+      font-size: 18px;
     }
 
     .abstract-card .card-body {
-      font-size: 13px;
+      font-size: 16px;
     }
 
   </style>
@@ -343,10 +343,7 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-title">Switching to low-resistance state</div>
           <div class="card-metric">0.21 – 3.0&nbsp;V</div>
           <div class="card-body">
-            Typical SET voltages extracted from I–V hysteresis loops of organic and honey-based
-            memristors span from about 0.21&nbsp;V and 0.23&nbsp;V up to 0.6&nbsp;V, 1.0&nbsp;V, 2.0&nbsp;V and 3.0&nbsp;V,
-            depending on the device stack and active layer thickness. 
-          </div>
+SET voltages range from ~0.21–0.23 V up to 0.6–3.0 V depending on stack and thickness.          </div>
         </div>
 
         <!-- Vreset -->
@@ -358,9 +355,7 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-title">Switching to high-resistance state</div>
           <div class="card-metric">−0.04 – −3.0&nbsp;V</div>
           <div class="card-body">
-            RESET operation drives the device back to the high-resistance state with typical voltages
-            between −0.04&nbsp;V and −3.0&nbsp;V, again identified from the bipolar I–V switching curves of
-            gelatin CNT, honey and carbon-dot based devices. 
+RESET voltages span −0.04 V to −3.0 V, restoring the high-resistance state in gelatin-CNT, honey, and carbon-dot devices.
           </div>
         </div>
 
@@ -373,9 +368,7 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-title">Dynamic resistance window</div>
           <div class="card-metric">10² – 10⁶</div>
           <div class="card-body">
-            Across reference devices, ON/OFF current ratios span from 10²–10⁴ for gelatin-CNT and
-            honey films up to 10⁶ for carbon-dot and honey-CNT structures, providing a large conductance
-            window for multi-level synaptic weights. 
+ON/OFF ratios span 10<sup>2</sup>–10<sup>4</sup> (gelatin/honey) and reach 10<sup>6</sup> (carbon-dot, honey-CNT).
           </div>
         </div>
       </div>
@@ -391,9 +384,7 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-title">Cycling stability of organic memristors</div>
           <div class="card-metric">35 – 10⁶ cycles</div>
           <div class="card-body">
-            Reported endurance varies with material system: gelatin-CNT devices are cycled for
-            about 35 switching events, honey-CNT devices sustain more than 10³ cycles, and carbon
-            dot based memories can reach up to 10⁶ cycles in the best cases. 
+Endurance ranges from ~35 cycles (gelatin-CNT) to >10<sup>3</sup> cycles (honey-CNT) and ~10<sup>6</sup> cycles (carbon-dot).
           </div>
         </div>
 
@@ -406,9 +397,7 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-title">Non-volatile conductance retention</div>
           <div class="card-metric">10⁴ – 10⁶&nbsp;s</div>
           <div class="card-body">
-            Typical retention measurements show stable conductance for around 10⁴&nbsp;s, while
-            carbon-dot devices reach 10⁵–10⁶&nbsp;s and some honey-based synapses extrapolate to multi-year
-            stability under read voltages of about 0.1–0.2&nbsp;V. 
+Retention is stable for ~10<sup>4</sup> s, extending to 10<sup>5</sup>–10<sup>6</sup> s and multi-year extrapolated stability.
           </div>
         </div>
       </div>
@@ -432,10 +421,7 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-title">Extracted slopes from I–V characteristics</div>
           <div class="card-metric">1.17 &amp; 3.21</div>
           <div class="card-body">
-            In log–log I–V plots, low-voltage conduction shows a slope of about 1.17, close to
-            ohmic behaviour, while the high-voltage regime exhibits a slope around 3.21, associated
-            with trap-filled space-charge-limited conduction, consistent with the classical J ∝ V²/L³
-            framework.
+Low-bias slope is ~1.17 (ohmic), rising to ~3.21 in the trap-filled SCLC regime.
           </div>
         </div>
 
@@ -448,10 +434,7 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-title">Ohmic to trap-filled SCLC transition</div>
           <div class="card-metric">Ohmic → TF-SCLC</div>
           <div class="card-body">
-            The combined slope analysis indicates a transition from an ohmic region at low bias
-            (slope ≈ 1) through space-charge-limited conduction (slope ≈ 2) into a trap-filled
-            limit with slopes greater than 3, matching the behaviour measured in honey and gelatin
-            CNT membranes.
+Conduction transitions from ohmic (≈1) to SCLC (≈2) to trap-filled (>3).
           </div>
         </div>
       </div>
@@ -476,9 +459,7 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-title">Paired-pulse facilitation behaviour</div>
           <div class="card-metric">≈ 370&nbsp;%</div>
           <div class="card-body">
-            In paired-pulse experiments, the second excitatory post-synaptic current can reach
-            about 370&nbsp;% of the first for an inter-pulse interval Δt ≈ 20&nbsp;ms, with fitted
-            double-exponential decay constants in the millisecond and tens-of-milliseconds ranges.
+Paired-pulse facilitation reaches ~370 % at Δt ≈ 20 ms with ms-scale decay constants.
           </div>
         </div>
 
@@ -491,9 +472,7 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-title">Multi-level honey memristor</div>
           <div class="card-metric">256 levels</div>
           <div class="card-body">
-            The honey-based synaptic device supports 256 distinct conductance levels, enabling
-            fine-grained weight tuning in the neuromorphic system and allowing accurate mapping
-            of analog weight updates during learning. 
+Honey synapses provide 256 conductance states for fine weight tuning.
           </div>
         </div>
       </div>
@@ -509,9 +488,7 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-title">Long-term potentiation curve fit</div>
           <div class="card-metric">+0.01</div>
           <div class="card-body">
-            Fitting the conductance-versus-pulse-number curve for long-term potentiation
-            gives a non-linearity parameter NL-LTP ≈ +0.01, indicating nearly linear
-            incremental increases in synaptic weight with repeated programming pulses. 
+LTP non-linearity is NL-LTP ≈ +0.01 (near-linear potentiation).
           </div>
         </div>
 
@@ -524,9 +501,7 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-title">Long-term depression curve fit</div>
           <div class="card-metric">−1.93</div>
           <div class="card-body">
-            The corresponding long-term depression branch yields NL-LTD ≈ −1.93, reflecting
-            a strongly non-linear decrease in conductance during weight erasure, consistent
-            with the 256-state honey memristor synapse used in the neuromorphic system. 
+LTD non-linearity is NL-LTD ≈ −1.93 (strong non-linear depression).
           </div>
         </div>
       </div>
