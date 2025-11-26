@@ -9,262 +9,287 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg-main: #05030b;
-      --bg-elevated: #0b0d18;
-      --bg-card: #101323;
-      --accent: #a855f7;
-      --accent-soft: rgba(168, 85, 247, 0.2);
-      --accent-strong: #c084fc;
-      --text-main: #e5e7eb;
-      --text-muted: #9ca3af;
-      --border-subtle: #262a3d;
-      --card-radius: 18px;
-      --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.5);
-    }
+  :root {
+  /* Blue–Navy Accent Palette */
+  --blue-1: #194f97;   /* royal blue */
+  --blue-2: #020715;   /* near-black navy */
+  --blue-3: #081a4b;   /* deep navy */
+  --blue-4: #0a1a33;   /* midnight blue */
+  --blue-5: #3b82f6;   /* bright blue */
+  --blue-6: #93c5fd;   /* light blue */
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  /* Backgrounds */
+  --bg-main: #000000;
+  --bg-elevated: #05070f;
+  --bg-card: #0a0d18;
 
-    body {
-      font-family: "Space Grotesk", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #111827 0, #05030b 40%, #02010a 100%);
-      color: var(--text-main);
-      min-height: 100vh;
-    }
+  /* Accents */
+  --accent: var(--blue-1);
+  --accent-soft: rgba(25, 79, 151, 0.22);
+  --accent-strong: var(--blue-3);
 
-    .page {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px 16px 48px;
-    }
+  /* Text */
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
 
-    /* Header */
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 20px;
-      border-radius: 20px;
-      background: radial-gradient(circle at 0 0, rgba(168, 85, 247, 0.15), transparent 55%),
-                  radial-gradient(circle at 100% 0, rgba(129, 140, 248, 0.18), transparent 60%),
-                  #05030b;
-      border: 1px solid rgba(148, 163, 184, 0.25);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
-      margin-bottom: 28px;
-    }
+  --border-subtle: #1e293b;
+  --card-radius: 18px;
+  --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.6);
+}
 
-    .header-left,
-    .header-center,
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    .logo-circle {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 0%, #e9d5ff 0, #a855f7 35%, #4c1d95 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      font-weight: 700;
-      color: #0b0614;
-      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.9);
-    }
+body {
+  background: radial-gradient(circle at top, #0a1a33 0%, #000 45%, #000 100%);
+  color: var(--text-main);
+  font-family: "Space Grotesk", sans-serif;
+}
 
-    .college-badge {
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.5);
-      font-size: 12px;
-      color: var(--text-muted);
-      background: rgba(15, 23, 42, 0.9);
-      box-shadow: 0 10px 22px rgba(0,0,0,0.6);
-    }
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
 
-    .title-block {
-      text-align: center;
-    }
+/* Header */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 0 0, rgba(25, 79, 151, 0.25), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(10, 26, 51, 0.22), transparent 60%),
+    var(--bg-main);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75);
+  margin-bottom: 28px;
+}
 
-    .title-block h1 {
-      font-size: 28px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: #f9fafb;
-    }
+.header-left,
+.header-center,
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-    .title-highlight {
-      background: linear-gradient(90deg, #e9d5ff, #c4b5fd, #a855f7);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
+/* (Fallback) Logo gradient to blue */
+.logo-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 0%, #e5f0ff 0, #3b82f6 35%, #020715 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0b0614;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.9);
+}
 
-    .title-block p {
-      margin-top: 4px;
-      font-size: 13px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-    }
+.college-badge {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+  font-size: 12px;
+  color: var(--text-muted);
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.6);
+}
 
-    /* Main layout */
+.title-block {
+  text-align: center;
+}
 
-    .section {
-      margin-bottom: 32px;
-    }
+.title-block h1 {
+  font-size: 28px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f9fafb;
+}
 
-    .section-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
+/* TITLE BLUE-GRADIENT */
+.title-highlight {
+  background: linear-gradient(
+    90deg,
+    var(--blue-1),
+    #2563eb,
+    #60a5fa
+  );
+  -webkit-background-clip: text;
+  color: transparent;
+}
 
-    .section-pill {
-      width: 8px;
-      height: 28px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, var(--accent-strong), var(--accent));
-      box-shadow: 0 0 18px rgba(168, 85, 247, 0.7);
-    }
+.title-block p {
+  margin-top: 4px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
 
-    .section-title {
-      font-size: 18px;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: #e5e7eb;
-    }
+/* Sections */
+.section {
+  margin-bottom: 32px;
+}
 
-    .section-subtitle {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-left: auto;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
 
-    /* Card grid */
+.section-pill {
+  width: 8px;
+  height: 28px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--accent-strong), var(--accent));
+  box-shadow: 0 0 18px rgba(37, 99, 235, 0.7);
+}
 
-    .card-grid {
-      display: grid;
-      gap: 16px;
-    }
+.section-title {
+  font-size: 18px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #e5e7eb;
+}
 
-    @media (min-width: 700px) {
-      .card-grid.cols-3 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-      .card-grid.cols-2 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
+.section-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: auto;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
 
-    .card {
-      position: relative;
-      border-radius: var(--card-radius);
-      padding: 16px 16px 14px;
-      background:
-        radial-gradient(circle at 0 0, rgba(168, 85, 247, 0.22), transparent 55%),
-        radial-gradient(circle at 100% 0, rgba(59, 130, 246, 0.15), transparent 55%),
-        linear-gradient(145deg, #050816, #050816 45%, #020617 100%);
-      border: 1px solid rgba(148, 163, 184, 0.35);
-      box-shadow: var(--shadow-soft);
-      overflow: hidden;
-    }
+/* Card Grid */
+.card-grid {
+  display: grid;
+  gap: 16px;
+}
 
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: -1px;
-      border-radius: inherit;
-      padding: 1px;
-      background: linear-gradient(120deg, rgba(168,85,247,0.8), rgba(56,189,248,0.3), transparent);
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-              mask-composite: exclude;
-      opacity: 0.45;
-      pointer-events: none;
-    }
+@media (min-width: 700px) {
+  .card-grid.cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .card-grid.cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
 
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 4px;
-    }
+/* Cards */
+.card {
+  position: relative;
+  border-radius: var(--card-radius);
+  padding: 16px 16px 14px;
+  background:
+    radial-gradient(circle at 0 0, rgba(25, 79, 151, 0.24), transparent 55%),
+    radial-gradient(circle at 100% 0, rgba(10, 26, 51, 0.22), transparent 55%),
+    linear-gradient(145deg, #000, #0a0d18 45%, #081a4b 100%);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
 
-    .card-label {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
-      color: var(--text-muted);
-    }
+.card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    120deg,
+    rgba(25, 79, 151, 0.6),
+    rgba(10, 26, 51, 0.4),
+    transparent
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0.45;
+  pointer-events: none;
+}
 
-    .card-tag {
-      font-size: 10px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      color: var(--text-muted);
-    }
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
 
-    .card-title {
-      margin-top: 4px;
-      font-size: 18px;
-      font-weight: 600;
-      color: #f9fafb;
-    }
+.card-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--text-muted);
+}
 
-    .card-metric {
-      margin-top: 8px;
-      font-size: 22px;
-      font-weight: 600;
-      background: linear-gradient(90deg, #c4b5fd, #a855f7);
-      -webkit-background-clip: text;
-      color: transparent;
-    }
+.card-tag {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  color: var(--text-muted);
+}
 
-    .card-body {
-      margin-top: 6px;
-      font-size: 16px;
-      line-height: 1.5;
-      color: var(--text-muted);
-    }
+.card-title {
+  margin-top: 4px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #f9fafb;
+}
 
-    .pill-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
+/* LIGHTER BLUE METRICS */
+.card-metric {
+  margin-top: 8px;
+  font-size: 22px;
+  font-weight: 600;
+  background: linear-gradient(90deg, var(--blue-5), var(--blue-6));
+  -webkit-background-clip: text;
+  color: transparent;
+}
 
-    .mini-pill {
-      font-size: 10px;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--text-muted);
-    }
+.card-body {
+  margin-top: 6px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
 
-    /* Abstract card wider */
-    .abstract-card .card-title {
-      font-size: 18px;
-    }
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
 
-    .abstract-card .card-body {
-      font-size: 16px;
-    }
+.mini-pill {
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text-muted);
+}
 
-  </style>
+/* Abstract Card */
+.abstract-card .card-title {
+  font-size: 18px;
+}
+
+.abstract-card .card-body {
+  font-size: 16px;
+}
+</style>
 </head>
 <body>
   <div class="page">
