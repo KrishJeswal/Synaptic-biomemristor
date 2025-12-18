@@ -1,1 +1,0 @@
-Python script that captures serial output from the firmware and logs voltage, current, and resistance data into CSV files.
