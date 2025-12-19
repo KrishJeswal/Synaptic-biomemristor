@@ -1,24 +1,14 @@
-# Bio-Ionic Memristor Characterization Platform
+# Bio-Ionic Memristor Characterization
 
-A hardware–software system to **characterize a bio-ionic memristor** and evaluate its **memory, reliability, and synaptic (neuromorphic) behavior** using an ESP32, INA219, and Python-based analysis.
+A minimal hardware–software platform to characterize a bio-ionic memristor using an ESP32, INA219, and Python.
 
----
+The system applies voltage pulses/sweeps, measures current response, and logs data for analysis.
 
-## Overview
+Key outcomes include:
+- I–V hysteresis and switching (Vset, Vreset)
+- ON/OFF ratio
+- Retention and endurance
+- Synaptic behavior (STP, LTP, PPF)
 
-This project enables:
-- Controlled **voltage pulses and sweeps**
-- **Current and voltage measurement** of a memristor device
-- Automated data logging
-- Extraction of **memristor and synaptic metrics** such as:
-  - Vset / Vreset
-  - ON/OFF ratio
-  - Retention and endurance
-  - STP, LTP, and PPF curves
-
-The system is designed to be **modular, reproducible, and report-ready**.
-
----
-
-## System Architecture
+ESP32 generates stimuli, INA219 senses current, and Python handles control, logging, and analysis.
 
