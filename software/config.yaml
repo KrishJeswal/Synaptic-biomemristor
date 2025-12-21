@@ -1,0 +1,21 @@
+backend: sim
+
+serial:
+  port: "COM5"
+  baud: 115200
+  timeout_s: 2.0
+
+pulse:
+  voltage_V: 1.0
+  width_ms: 10
+  num_pulses: 50
+
+iv:
+  start_V: -1.0
+  end_V: 1.0
+  steps: 41
+
+paths:
+  data_raw_dir: "data/raw"
+  data_processed_dir: "data/processed"
+  plots_dir: "plots"
