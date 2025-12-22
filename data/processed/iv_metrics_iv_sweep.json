@@ -1,0 +1,11 @@
+{
+  "run_id": "iv_sweep",
+  "vread_V": 0.2,
+  "ion_A": 2.3947506404498075e-06,
+  "ioff_A": 1.6052493595501918e-06,
+  "on_off_ratio": 1.4918246976412701,
+  "vset_V": null,
+  "vreset_V": null,
+  "hysteresis_area": 5.628938161068423e-06,
+  "notes": "No clear SET jump detected. No clear RESET jump detected."
+}

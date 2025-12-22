@@ -1,5 +1,7 @@
 backend: sim
 
+vread_V: 0.2
+
 serial:
   port: "COM5"
   baud: 115200
