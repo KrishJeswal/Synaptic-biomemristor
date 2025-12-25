@@ -1,6 +1,5 @@
 from __future__ import annotations
 import json
-import math
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Optional, Tuple
@@ -57,7 +56,7 @@ def _detect_switch_voltage(branch: pd.DataFrame, mode: str) -> Optional[float]:
     v = branch["voltage_V"].to_numpy(dtype=float)
     i = branch["current_A"].to_numpy(dtype=float)
     g = _safe_div(i, v)  
-    # Smooth very lightly to reduce noise sensitivity (moving average)
+    # reducing noise sensitivity (moving average)
     g_s = pd.Series(g).rolling(window=3, center=True, min_periods=1).mean().to_numpy()
 
     dg = np.diff(g_s)
@@ -65,14 +64,14 @@ def _detect_switch_voltage(branch: pd.DataFrame, mode: str) -> Optional[float]:
         return None
 
     # Robust threshold to avoid calling noise "switching"
-    # Use median absolute deviation as noise estimator.
+    # median absolute deviation as noise estimator.
     med = np.nanmedian(dg)
     mad = np.nanmedian(np.abs(dg - med))
     noise_scale = mad if mad > 0 else np.nanstd(dg)
     if not np.isfinite(noise_scale) or noise_scale == 0:
         noise_scale = 1e-12
 
-    # Require a jump at least k * noise_scale
+    # jump at least k * noise_scale
     k = 8.0
     if mode == "set":
         idx = int(np.nanargmax(dg))
