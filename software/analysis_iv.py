@@ -1,15 +1,11 @@
-# software/analysis_iv.py
 from __future__ import annotations
-
 import json
 import math
 from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Optional, Tuple
-
 import numpy as np
 import pandas as pd
-
 
 @dataclass
 class IVMetrics:
@@ -23,20 +19,17 @@ class IVMetrics:
     hysteresis_area: Optional[float]
     notes: str
 
-
 def _safe_div(a: np.ndarray, b: np.ndarray, eps: float = 1e-12) -> np.ndarray:
     out = np.full_like(a, np.nan, dtype=float)
     mask = np.abs(b) > eps
     out[mask] = a[mask] / b[mask]
     return out
 
-
 def _closest_at_v(df: pd.DataFrame, v_target: float) -> Optional[pd.Series]:
     if df.empty:
         return None
     idx = (df["voltage_V"] - v_target).abs().idxmin()
     return df.loc[idx]
-
 
 def _split_branches(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
@@ -46,14 +39,11 @@ def _split_branches(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     if df.empty:
         return df.copy(), df.copy()
-
     absmax_idx = df["voltage_V"].abs().idxmax()
     i = df.index.get_loc(absmax_idx)
-
     b1 = df.iloc[: i + 1].copy()
     b2 = df.iloc[i:].copy()
     return b1, b2
-
 
 def _detect_switch_voltage(branch: pd.DataFrame, mode: str) -> Optional[float]:
     """
@@ -64,11 +54,9 @@ def _detect_switch_voltage(branch: pd.DataFrame, mode: str) -> Optional[float]:
     """
     if len(branch) < 5:
         return None
-
     v = branch["voltage_V"].to_numpy(dtype=float)
     i = branch["current_A"].to_numpy(dtype=float)
-
-    g = _safe_div(i, v)  # conductance
+    g = _safe_div(i, v)  
     # Smooth very lightly to reduce noise sensitivity (moving average)
     g_s = pd.Series(g).rolling(window=3, center=True, min_periods=1).mean().to_numpy()
 
@@ -99,7 +87,6 @@ def _detect_switch_voltage(branch: pd.DataFrame, mode: str) -> Optional[float]:
     else:
         raise ValueError("mode must be 'set' or 'reset'")
 
-
 def compute_iv_metrics(
     iv_csv_path: str,
     vread_V: float = 0.2,
@@ -118,7 +105,6 @@ def compute_iv_metrics(
     df = pd.read_csv(in_path)
 
     # Normalize expected column names
-    # (Your current IV file uses: voltage_V, current_A) :contentReference[oaicite:0]{index=0}
     if "voltage_V" not in df.columns or "current_A" not in df.columns:
         raise ValueError(f"CSV must contain columns voltage_V and current_A. Found: {list(df.columns)}")
 
@@ -127,16 +113,14 @@ def compute_iv_metrics(
     df["current_A"] = df["current_A"].astype(float)
 
     # Hysteresis area (signed integral around curve)
-    # This is a simple metric for loop "strength".
-    # For non-closed curves, this is still a useful proxy.
+    # simple metric for loop "strength"
+    # For non-closed curves
     try:
         hysteresis_area = float(np.trapz(df["current_A"].to_numpy(), df["voltage_V"].to_numpy()))
     except Exception:
         hysteresis_area = None
 
     # ON/OFF at Vread:
-    # If your sweep includes both +Vread and -Vread, we can use both.
-    # Otherwise we use +Vread only.
     row_pos = _closest_at_v(df, +abs(vread_V))
     row_neg = _closest_at_v(df, -abs(vread_V))
 
@@ -146,8 +130,6 @@ def compute_iv_metrics(
     notes = ""
 
     # Heuristic:
-    # - If we have both sides, treat higher |I| as ON and lower |I| as OFF.
-    # - If only one side is meaningful, use that side with absolute current.
     if row_pos is not None and row_neg is not None:
         i_pos = float(row_pos["current_A"])
         i_neg = float(row_neg["current_A"])
@@ -190,11 +172,11 @@ def compute_iv_metrics(
     out_path = Path(out_dir)
     out_path.mkdir(parents=True, exist_ok=True)
 
-    # CSV (one-row)
+    # CSV
     out_csv = out_path / f"iv_metrics_{run_id}.csv"
     pd.DataFrame([asdict(metrics)]).to_csv(out_csv, index=False)
 
-    # JSON (nice for pipelines)
+    # JSON
     out_json = out_path / f"iv_metrics_{run_id}.json"
     out_json.write_text(json.dumps(asdict(metrics), indent=2), encoding="utf-8")
 
@@ -202,8 +184,6 @@ def compute_iv_metrics(
 
 
 if __name__ == "__main__":
-    # Example manual run:
-    # python software/analysis_iv.py data/raw/iv_sweep.csv
     import argparse
 
     ap = argparse.ArgumentParser()

@@ -1,18 +1,14 @@
-# experiment_iv.py
 from __future__ import annotations
 import csv
 from pathlib import Path
-
 import matplotlib.pyplot as plt
 import yaml
 
 from backend_sim import run_iv_sweep
 
-
 def load_cfg() -> dict:
     cfg_path = Path(__file__).resolve().parent / "config.yaml"
     return yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
-
 
 def run_iv(cfg: dict | None = None) -> str:
     if cfg is None:
@@ -22,10 +18,6 @@ def run_iv(cfg: dict | None = None) -> str:
     IV_START = float(iv["start_V"])
     IV_END = float(iv["end_V"])
     IV_STEPS = int(iv["steps"])
-
-    # Ensure folders exist
-    Path("data/raw").mkdir(parents=True, exist_ok=True)
-    Path("data/plots").mkdir(parents=True, exist_ok=True)
 
     print("Running I–V sweep")
 
@@ -52,9 +44,7 @@ def run_iv(cfg: dict | None = None) -> str:
     plt.show()
 
     print("Plot saved:", plot_name)
-
     return csv_name
-
 
 if __name__ == "__main__":
     run_iv()

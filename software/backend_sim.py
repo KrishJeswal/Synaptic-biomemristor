@@ -17,7 +17,6 @@ def run_pulse_experiment(voltage, width_ms, num_pulses):
 
     return currents
 
-
 def run_iv_sweep(v_start, v_end, steps):
     voltages = []
     currents = []

@@ -1,4 +1,3 @@
-# software/run_experiment.py
 from __future__ import annotations
 import argparse
 import time
@@ -9,11 +8,9 @@ cfg = yaml.safe_load(CFG_PATH.read_text(encoding="utf-8"))
 
 from experiment_pulse import run_pulse
 from experiment_iv import run_iv
-
 from backend_sim import run_pulse_experiment as sim_pulse
 from backend_sim import run_iv_sweep as sim_iv
 from analysis_iv import compute_iv_metrics
-
 from device_serial import ESP32SerialBackend, SerialConfig
 
 class SimBackend:
@@ -29,10 +26,8 @@ def load_config(path: str) -> dict:
 
 def make_backend(cfg: dict):
     backend_type = (cfg.get("backend") or "sim").lower()
-
     if backend_type == "sim":
         return SimBackend(), None
-
     if backend_type == "esp32":
         scfg = cfg["serial"]
         backend = ESP32SerialBackend(
@@ -44,7 +39,6 @@ def make_backend(cfg: dict):
         )
         backend.open()
         return backend, backend
-
     raise ValueError(f"Unknown backend: {backend_type}")
 
 def main():
@@ -52,10 +46,8 @@ def main():
     ap.add_argument("--config", default="software/config.yaml")
     ap.add_argument("--mode", choices=["pulse", "iv", "all"], required=True)
     args = ap.parse_args()
-
     cfg = load_config(args.config)
     backend, closer = make_backend(cfg)
-
     try:
         if args.mode == "pulse":
             run_pulse(cfg)

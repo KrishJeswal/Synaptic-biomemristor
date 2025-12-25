@@ -1,18 +1,13 @@
-# experiment_pulse.py
 from __future__ import annotations
 import csv
 from pathlib import Path
-
 import matplotlib.pyplot as plt
 import yaml
-
 from backend_sim import run_pulse_experiment
-
 
 def load_cfg() -> dict:
     cfg_path = Path(__file__).resolve().parent / "config.yaml"
     return yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
-
 
 def run_pulse(cfg: dict | None = None) -> str:
     if cfg is None:
@@ -22,10 +17,6 @@ def run_pulse(cfg: dict | None = None) -> str:
     PULSE_VOLTAGE = float(pulse["voltage_V"])
     PULSE_WIDTH_MS = int(pulse["width_ms"])
     NUM_PULSES = int(pulse["num_pulses"])
-
-    # Ensure folders exist
-    Path("data/raw").mkdir(parents=True, exist_ok=True)
-    Path("data/plots").mkdir(parents=True, exist_ok=True)
 
     print("Running pulse experiment")
 
@@ -51,11 +42,8 @@ def run_pulse(cfg: dict | None = None) -> str:
     plot_name = f"data/plots/pulse_{PULSE_VOLTAGE}V.png"
     plt.savefig(plot_name)
     plt.show()
-
     print("Plot saved:", plot_name)
-
     return csv_name
-
 
 if __name__ == "__main__":
     run_pulse()
