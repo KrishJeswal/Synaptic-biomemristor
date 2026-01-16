@@ -19,24 +19,31 @@ def run_iv(cfg: dict | None = None) -> str:
     IV_END = float(iv["end_V"])
     IV_STEPS = int(iv["steps"])
 
-    print("Running I–V sweep")
+    print("Running I–V sweep (forward + reverse for hysteresis)")
 
-    voltages, currents = run_iv_sweep(IV_START, IV_END, IV_STEPS)
+    # Generate a bidirectional sweep so the hysteresis analysis has two branches.
+    voltages, currents = run_iv_sweep(IV_START, IV_END, IV_STEPS, bidirectional=True)
 
     csv_name = "data/raw/iv_sweep.csv"
     with open(csv_name, "w", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow(["voltage_V", "current_A"])
-        for v, i in zip(voltages, currents):
-            writer.writerow([v, i])
+        # Include a sweep label for convenience (analysis scripts will ignore extra columns).
+        writer.writerow(["voltage_V", "current_A", "sweep"])
+
+        # The first (IV_STEPS) points are forward (including the endpoint).
+        # The remaining points are reverse (endpoint removed to avoid a duplicate point).
+        for idx, (v, i) in enumerate(zip(voltages, currents)):
+            sweep = "fwd" if idx < IV_STEPS else "rev"
+            writer.writerow([v, i, sweep])
 
     print("CSV saved:", csv_name)
 
     plt.figure()
-    plt.plot(voltages, currents, marker="o")
+    # Plot the full loop; it should visually differ from the hysteresis plot (which shades area).
+    plt.plot(voltages, currents, marker="o", linewidth=1)
     plt.xlabel("Voltage (V)")
     plt.ylabel("Current (A)")
-    plt.title("I–V Curve (Simulated)")
+    plt.title("I–V Sweep (Simulated, Forward + Reverse)")
     plt.grid(True)
 
     plot_name=f"data/plots/iv_curve.png"

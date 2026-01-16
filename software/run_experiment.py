@@ -1,17 +1,26 @@
 from __future__ import annotations
 import argparse
+import sys
 import time
 import yaml
 from pathlib import Path
+
+# Allow running as: python software/run_experiment.py ... (from repo root)
+_SOFTWARE_DIR = Path(__file__).resolve().parent
+if str(_SOFTWARE_DIR) not in sys.path:
+    sys.path.insert(0, str(_SOFTWARE_DIR))
 CFG_PATH = Path(__file__).resolve().parent / "config.yaml"
 cfg = yaml.safe_load(CFG_PATH.read_text(encoding="utf-8"))
 
 from experiment_pulse import run_pulse
 from experiment_iv import run_iv
+from experiment_endurance import run_endurance
+from experiment_retention import run_retention
 from backend_sim import run_pulse_experiment as sim_pulse
 from backend_sim import run_iv_sweep as sim_iv
 from analysis_iv import compute_iv_metrics
-from device_serial import ESP32SerialBackend, SerialConfig
+from analysis_endurance import compute_endurance_metrics
+from analysis_retention import compute_retention_metrics
 
 class SimBackend:
     def run_pulse_experiment(self, voltage_V, width_ms, num_pulses):
@@ -29,6 +38,8 @@ def make_backend(cfg: dict):
     if backend_type == "sim":
         return SimBackend(), None
     if backend_type == "esp32":
+        # Import lazily so simulation runs don't require pyserial.
+        from device_serial import ESP32SerialBackend, SerialConfig
         scfg = cfg["serial"]
         backend = ESP32SerialBackend(
             SerialConfig(
@@ -44,21 +55,44 @@ def make_backend(cfg: dict):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="software/config.yaml")
-    ap.add_argument("--mode", choices=["pulse", "iv", "all"], required=True)
+    ap.add_argument("--mode", choices=["pulse", "iv", "endurance", "retention", "all"], required=True)
     args = ap.parse_args()
     cfg = load_config(args.config)
+
+    # Output paths (keep backward compatibility with existing repo layout)
+    paths = cfg.get("paths", {}) or {}
+    raw_dir = str(paths.get("data_raw_dir", "data/raw"))
+    processed_dir = str(paths.get("data_processed_dir", "data/processed"))
+    plots_dir = str(paths.get("plots_dir", "data/plots"))
+    if plots_dir.strip().lower() in {"plots", "plot"}:
+        plots_dir = "data/plots"
+
     backend, closer = make_backend(cfg)
     try:
         if args.mode == "pulse":
             run_pulse(cfg)
         elif args.mode == "iv":
             iv_csv = run_iv(cfg)
-            compute_iv_metrics(iv_csv, vread_V=float(cfg["vread_V"]), out_dir="data/processed")
+            compute_iv_metrics(iv_csv, vread_V=float(cfg["vread_V"]), out_dir=processed_dir, plots_dir=plots_dir)
+        elif args.mode == "endurance":
+            end_csv = run_endurance(cfg)
+            compute_endurance_metrics(end_csv, out_dir=processed_dir, plots_dir=plots_dir)
+        elif args.mode == "retention":
+            ret_csv = run_retention(cfg)
+            compute_retention_metrics(ret_csv, out_dir=processed_dir, plots_dir=plots_dir)
         elif args.mode == "all":
             iv_csv = run_iv(cfg)
-            compute_iv_metrics(iv_csv, vread_V=float(cfg["vread_V"]), out_dir="data/processed")
-            time.sleep(2)
-            run_pulse(cfg)
+            time.sleep(0.5)
+            pulse_csv = run_pulse(cfg)
+            time.sleep(0.5)
+            end_csv = run_endurance(cfg)
+            time.sleep(0.5)
+            ret_csv = run_retention(cfg)
+
+            # Run analyses at the end, each on its own dataset.
+            compute_iv_metrics(iv_csv, vread_V=float(cfg["vread_V"]), out_dir=processed_dir, plots_dir=plots_dir)
+            compute_endurance_metrics(end_csv, out_dir=processed_dir, plots_dir=plots_dir)
+            compute_retention_metrics(ret_csv, out_dir=processed_dir, plots_dir=plots_dir)
     finally:
         if closer is not None:
             closer.close()

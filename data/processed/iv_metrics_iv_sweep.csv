@@ -1,2 +1,2 @@
 run_id,vread_V,ion_A,ioff_A,on_off_ratio,vset_V,vreset_V,hysteresis_area,notes
-iv_sweep,0.2,2.3947506404498075e-06,1.6052493595501918e-06,1.4918246976412701,,,5.628938161068423e-06,No clear SET jump detected. No clear RESET jump detected.
+iv_sweep,0.2,2.6493673902152527e-06,1.3695904330399267e-06,1.934423113875546,,0.4,4.137385674488059e-06,No clear SET jump detected.
