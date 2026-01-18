@@ -58,7 +58,7 @@ def make_backend(cfg: dict):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--config", default="simulation/config.yaml")
+    ap.add_argument("--config", default=str((_SIMULATION_DIR / "config.yaml").resolve()))
     ap.add_argument("--mode", choices=["pulse", "iv", "endurance", "retention", "all"], required=True)
     args = ap.parse_args()
     cfg = load_config(args.config)
