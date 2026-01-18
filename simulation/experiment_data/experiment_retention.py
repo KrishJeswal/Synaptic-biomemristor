@@ -1,21 +1,26 @@
 from __future__ import annotations
 
 import csv
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import yaml
 
+_SIM_DIR = Path(__file__).resolve().parents[1]
+_PROJECT_ROOT = _SIM_DIR.parent
+if str(_SIM_DIR) not in sys.path:
+    sys.path.insert(0, str(_SIM_DIR))
+
 from backend_sim import run_retention_experiment
 
 
 def load_cfg() -> dict:
-    cfg_path = Path(__file__).resolve().parent / "config.yaml"
+    cfg_path = _SIM_DIR / "config.yaml"
     return yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
 
 
 def _default_delays_s() -> list[float]:
-    # A log-ish delay schedule (seconds) typical for retention checks.
     return [
         0,
         1,
@@ -33,8 +38,6 @@ def _default_delays_s() -> list[float]:
 
 
 def run_retention(cfg: dict | None = None) -> str:
-    """Run a retention experiment (program once, then read at increasing delays)."""
-
     if cfg is None:
         cfg = load_cfg()
 
@@ -51,7 +54,7 @@ def run_retention(cfg: dict | None = None) -> str:
 
     out = run_retention_experiment(read_voltage_V=read_voltage_V, delays_s=delays_s)
 
-    csv_name = "data/raw/retention_reads.csv"
+    csv_name = str(_PROJECT_ROOT / "data" / "raw" / "retention_reads.csv")
     Path(csv_name).parent.mkdir(parents=True, exist_ok=True)
 
     headers = list(out.keys())
@@ -65,13 +68,11 @@ def run_retention(cfg: dict | None = None) -> str:
 
     print("CSV saved:", csv_name)
 
-    # Plot conductance vs time (log-x helps show long-tail decay)
     t = out["time_s"]
     g = out["conductance_S"]
 
     plt.figure()
     plt.plot(t, g, marker="o", linewidth=1)
-    # Avoid log scale if there are negative/duplicate times.
     if len(t) >= 2 and min(t) >= 0:
         plt.xscale("symlog", linthresh=1.0)
     plt.xlabel("Time (s)")
@@ -79,7 +80,7 @@ def run_retention(cfg: dict | None = None) -> str:
     plt.title("Retention (Simulated)")
     plt.grid(True)
 
-    plot_name = "data/plots/retention_reads.png"
+    plot_name = str(_PROJECT_ROOT / "data" / "plots" / "retention_reads.png")
     Path(plot_name).parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(plot_name, bbox_inches="tight")
     plt.show()

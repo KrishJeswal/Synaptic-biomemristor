@@ -33,7 +33,6 @@ def _fmt_value(v: Any) -> str:
     if v is None:
         return "—"
     if isinstance(v, float):
-        # compact, readable
         if abs(v) >= 1000 or (abs(v) > 0 and abs(v) < 0.001):
             return f"{v:.4e}"
         return f"{v:.6g}"
@@ -58,7 +57,6 @@ def _img_tag(img_path: Path, embed: bool) -> str:
         return f"<div class='note error'>Missing image: {html.escape(str(img_path))}</div>"
 
     if not embed:
-        # relative path from repo root so it works when served/opened
         rel = img_path.as_posix()
         return f"<img class='plot' src='{html.escape(rel)}' alt='{html.escape(img_path.name)}' />"
 
@@ -452,7 +450,7 @@ def _build_html(root: Path, embed_images: bool) -> str:
 
     <footer>
       Tip: If images don’t show when opening the HTML directly, run
-      <span class="muted">python software/dashboard.py --serve</span>
+      <span class="muted">python simulation/dashboard.py --serve</span>
       or regenerate with <span class="muted">--embed-images</span>.
     </footer>
 

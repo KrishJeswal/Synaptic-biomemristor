@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 
 def _project_root() -> Path:
-    return Path(__file__).resolve().parents[1]
+    return Path(__file__).resolve().parents[2]
 
 
 def _resolve_path(p: str) -> Path:
@@ -69,11 +69,10 @@ def compute_endurance_metrics(
     min_window: int = 10,
     make_plot: bool = True,
 ) -> EnduranceMetrics:
-    in_path = Path(pulse_csv_path)
+    in_path = _resolve_path(pulse_csv_path)
     run_id = in_path.stem
     df = pd.read_csv(in_path).dropna(how="all")
 
-    # Normalize cycle column
     cycle_col = None
     for c in ("pulse_number", "cycle_number", "cycle", "step"):
         if c in df.columns:
@@ -87,7 +86,6 @@ def compute_endurance_metrics(
     df = df.copy()
     df[cycle_col] = df[cycle_col].astype(int)
     df, g_col = _get_conductance(df)
-    # Keep phase if present
     keep_cols = [cycle_col, g_col] + (["phase"] if "phase" in df.columns else [])
     df = df[keep_cols].dropna().sort_values(cycle_col)
 
@@ -123,7 +121,6 @@ def compute_endurance_metrics(
         except Exception:
             notes += "Linear fit failed. "
 
-    # Late-life stability
     last_n = int(max(min_window, round(n * float(last_window_frac)))) if n else 0
     last_n = int(min(last_n, n))
     cv_last = None

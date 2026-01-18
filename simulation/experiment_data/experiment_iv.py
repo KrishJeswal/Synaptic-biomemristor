@@ -1,13 +1,19 @@
 from __future__ import annotations
 import csv
+import sys
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 import yaml
+_SIM_DIR = Path(__file__).resolve().parents[1]
+_PROJECT_ROOT = _SIM_DIR.parent
+if str(_SIM_DIR) not in sys.path:
+    sys.path.insert(0, str(_SIM_DIR))
 
 from backend_sim import run_iv_sweep
 
 def load_cfg() -> dict:
-    cfg_path = Path(__file__).resolve().parent / "config.yaml"
+    cfg_path = _SIM_DIR / "config.yaml"
     return yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
 
 def run_iv(cfg: dict | None = None) -> str:
@@ -21,17 +27,13 @@ def run_iv(cfg: dict | None = None) -> str:
 
     print("Running I–V sweep (forward + reverse for hysteresis)")
 
-    # Generate a bidirectional sweep so the hysteresis analysis has two branches.
     voltages, currents = run_iv_sweep(IV_START, IV_END, IV_STEPS, bidirectional=True)
 
-    csv_name = "data/raw/iv_sweep.csv"
+    csv_name = str(_PROJECT_ROOT / "data" / "raw" / "iv_sweep.csv")
     with open(csv_name, "w", newline="") as f:
         writer = csv.writer(f)
-        # Include a sweep label for convenience (analysis scripts will ignore extra columns).
         writer.writerow(["voltage_V", "current_A", "sweep"])
 
-        # The first (IV_STEPS) points are forward (including the endpoint).
-        # The remaining points are reverse (endpoint removed to avoid a duplicate point).
         for idx, (v, i) in enumerate(zip(voltages, currents)):
             sweep = "fwd" if idx < IV_STEPS else "rev"
             writer.writerow([v, i, sweep])
@@ -39,14 +41,13 @@ def run_iv(cfg: dict | None = None) -> str:
     print("CSV saved:", csv_name)
 
     plt.figure()
-    # Plot the full loop; it should visually differ from the hysteresis plot (which shades area).
     plt.plot(voltages, currents, marker="o", linewidth=1)
     plt.xlabel("Voltage (V)")
     plt.ylabel("Current (A)")
     plt.title("I–V Sweep (Simulated, Forward + Reverse)")
     plt.grid(True)
 
-    plot_name=f"data/plots/iv_curve.png"
+    plot_name = str(_PROJECT_ROOT / "data" / "plots" / "iv_curve.png")
     plt.savefig(plot_name)
     plt.show()
 

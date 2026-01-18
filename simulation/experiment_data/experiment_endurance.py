@@ -1,16 +1,22 @@
 from __future__ import annotations
 
 import csv
+import sys
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import yaml
 
+_SIM_DIR = Path(__file__).resolve().parents[1]
+_PROJECT_ROOT = _SIM_DIR.parent
+if str(_SIM_DIR) not in sys.path:
+    sys.path.insert(0, str(_SIM_DIR))
+
 from backend_sim import run_endurance_experiment
 
 
 def load_cfg() -> dict:
-    cfg_path = Path(__file__).resolve().parent / "config.yaml"
+    cfg_path = _SIM_DIR / "config.yaml"
     return yaml.safe_load(cfg_path.read_text(encoding="utf-8"))
 
 
@@ -37,7 +43,7 @@ def run_endurance(cfg: dict | None = None) -> str:
         n_cycles=n_cycles,
     )
 
-    csv_name = f"data/raw/endurance_cycles_{n_cycles}.csv"
+    csv_name = str(_PROJECT_ROOT / "data" / "raw" / f"endurance_cycles_{n_cycles}.csv")
     Path(csv_name).parent.mkdir(parents=True, exist_ok=True)
 
     headers = list(out.keys())
@@ -51,7 +57,6 @@ def run_endurance(cfg: dict | None = None) -> str:
 
     print("CSV saved:", csv_name)
 
-    # Plot: LRS and HRS trends vs cycle number
     cycles = out["cycle_number"]
     phases = out["phase"]
     g = out["conductance_S"]
@@ -70,7 +75,7 @@ def run_endurance(cfg: dict | None = None) -> str:
     plt.grid(True)
     plt.legend()
 
-    plot_name = f"data/plots/endurance_cycles_{n_cycles}.png"
+    plot_name = str(_PROJECT_ROOT / "data" / "plots" / f"endurance_cycles_{n_cycles}.png")
     Path(plot_name).parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(plot_name, bbox_inches="tight")
     plt.show()

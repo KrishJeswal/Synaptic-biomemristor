@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 
 def _project_root() -> Path:
-    return Path(__file__).resolve().parents[1]
+    return Path(__file__).resolve().parents[2]
 
 
 def _resolve_path(p: str) -> Path:
@@ -111,7 +111,7 @@ def compute_retention_metrics(
     plots_dir: str = "data/plots",
     make_plot: bool = True,
 ) -> RetentionMetrics:
-    in_path = Path(retention_csv_path)
+    in_path = _resolve_path(retention_csv_path)
     run_id = in_path.stem
     df = pd.read_csv(in_path).dropna(how="all")
 

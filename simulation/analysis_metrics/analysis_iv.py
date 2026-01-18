@@ -21,7 +21,7 @@ class IVMetrics:
 
 
 def _project_root() -> Path:
-    return Path(__file__).resolve().parents[1]
+    return Path(__file__).resolve().parents[2]
 
 
 def _resolve_path(p: str) -> Path:
@@ -96,7 +96,7 @@ def plot_hysteresis(
     title: str | None = None,
     show: bool = False,
 ) -> Optional[str]:
-    in_path = Path(iv_csv_path)
+    in_path = _resolve_path(iv_csv_path)
     df = pd.read_csv(in_path)
     if "voltage_V" not in df.columns or "current_A" not in df.columns:
         raise ValueError(f"CSV must contain columns voltage_V and current_A. Found: {list(df.columns)}")
@@ -212,7 +212,7 @@ def compute_iv_metrics(
     plots_dir: str = "data/plots",
     make_plot: bool = True,
 ) -> IVMetrics:
-    in_path = Path(iv_csv_path)
+    in_path = _resolve_path(iv_csv_path)
     run_id = in_path.stem
 
     df_full = pd.read_csv(in_path)

@@ -1,9 +1,9 @@
-backend: Sim
+backend: sim
 
 vread_V: 0.2
 
 serial:
-  port: "COM5"
+  port: "COM7"
   baud: 115200
   timeout_s: 2.0
 
@@ -12,7 +12,6 @@ pulse:
   width_ms: 10
   num_pulses: 50
 
-# Endurance: alternating SET/RESET + READ. (Simulator-generated dataset)
 endurance:
   n_cycles: 200
   set_voltage_V: 1.2
@@ -20,7 +19,6 @@ endurance:
   read_voltage_V: 0.2
   width_ms: 10
 
-# Retention: program once, then read at increasing delays. (Simulator-generated dataset)
 retention:
   read_voltage_V: 0.2
   delays_s: [0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000]
