@@ -637,7 +637,6 @@ class CharacterizationSummary:
     notes: str
 
 def _guess_csvs_from_dir(input_dir: Path) -> Dict[str, Path]:
-    """Heuristic: pick the most likely IV / endurance / retention CSVs in a folder."""
     out: Dict[str, Path] = {}
     csvs = sorted([p for p in input_dir.glob("*.csv") if p.is_file()])
     if not csvs:
