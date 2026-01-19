@@ -1,0 +1,39 @@
+{
+  "iv": {
+    "source_csv": "C:\\Coding\\Coding Files\\Synaptic-biomemristor\\data\\final values\\sim_iv_sweep_hysteresis_0_to_3.3V.csv",
+    "vread_V": 0.2,
+    "ion_A": 1.2517989273166188e-05,
+    "ioff_A": 7.51798927316619e-06,
+    "on_off_ratio": 1.665071446410066,
+    "ron_Ohm": 15977.006820793815,
+    "roff_Ohm": 26602.85785640265,
+    "vset_V": null,
+    "vreset_V": null,
+    "hysteresis_area": 0.00015213367847049478,
+    "notes": "No clear SET jump detected. No clear RESET jump detected."
+  },
+  "endurance": {
+    "source_csv": "C:\\Coding\\Coding Files\\Synaptic-biomemristor\\data\\final values\\sim_pulse_train.csv",
+    "n_cycles": 60,
+    "g_lrs_mean_S": 0.0003621154655964333,
+    "g_hrs_mean_S": 0.0002108376878186556,
+    "on_off_ratio_mean": 1.717508237464138,
+    "drift_pct_overall": 116.19617490291733,
+    "cv_last_window": 0.06369375089583135,
+    "failure_cycle": null,
+    "notes": "No cycle column found; used row index as pulse_number. No phase column; using early/late window estimate for HRS/LRS. Estimated HRS/LRS using first/last 6 points."
+  },
+  "retention": {
+    "source_csv": "C:\\Coding\\Coding Files\\Synaptic-biomemristor\\data\\final values\\sim_pulse_train.csv",
+    "t0_s": 0.0,
+    "t_end_s": 59.0,
+    "g0_S": 0.00015261546559643333,
+    "g_end_S": 0.00032994879892976663,
+    "retention_ratio": 2.161961749029173,
+    "t50_s": null,
+    "tau_s": null,
+    "r2_exp": null,
+    "notes": "No time/pulse columns; used row index as pulse_number. No time column; inferred time from pulse_number using dt=1.0s. Exponential fit slope was non-negative; tau not computed."
+  },
+  "notes": "Auto-detected from data/final values: {'iv': 'sim_iv_sweep_hysteresis_0_to_3.3V.csv', 'endurance': 'sim_pulse_train.csv', 'retention': 'sim_pulse_train.csv'}."
+}

@@ -176,6 +176,11 @@ header {
   gap: 16px;
 }
 
+/* Prevent small metric cards from stretching to match tall neighbors */
+.card-grid.align-top {
+  align-items: start;
+}
+
 @media (min-width: 700px) {
   .card-grid.cols-3 {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -306,6 +311,27 @@ header {
   color: #e5e7eb;
 }
 
+
+.live-split {
+  display: grid;
+  gap: 16px;
+}
+
+.live-left,
+.live-right {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 900px) {
+  .live-split {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    align-items: start;
+  }
+}
+
+
 .plot-grid {
   display: grid;
   gap: 16px;
@@ -315,6 +341,10 @@ header {
   .plot-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+.plot-grid.stack {
+  grid-template-columns: 1fr !important;
 }
 
 .plot-card {
@@ -504,17 +534,13 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
       <div class="section-header">
         <div class="section-pill"></div>
         <div class="section-title">Live Experiment Results</div>
-        <div class="section-subtitle">From memristor_run_and_plot.py + characterize_memristor.py</div>
+        <div class="section-subtitle">From memristor_simulated_run.py + characterize_memristor.py</div>
       </div>
 
       <div class="live-note">
         <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
           <div>
             <div class="badge-live"><span class="dot"></span> Latest run (local)</div>
-            <div class="small-muted" style="margin-top:6px;">
-              This section loads <strong>plots</strong> from <code>data/final values/</code> and <strong>metrics</strong> from <code>data/processed/characterization_summary.json</code>.
-              If you don’t see anything, run the scripts and refresh.
-            </div>
           </div>
           <div id="liveMetricsStatus" class="small-muted">Loading metrics…</div>
         </div>
@@ -584,87 +610,95 @@ Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphi
           <div class="card-body" id="metricFailure">Failure cycle: —</div>
         </div>
       </div>
+      <div class="live-split" style="margin-bottom: 16px;">
+        <div class="live-left">
 
-      <div class="card-grid cols-2" style="margin-bottom: 16px;">
-        <div class="card">
-          <div class="card-header">
-            <div class="card-label">Retention</div>
-            <div class="card-tag">Live</div>
+          <!-- Retention -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-label">Retention</div>
+              <div class="card-tag">Live</div>
+            </div>
+            <div class="card-title">State stability over time</div>
+            <div class="card-metric" id="metricRetentionRatio">—</div>
+            <div class="card-body" id="metricRetentionDetails">t50: — • τ: —</div>
           </div>
-          <div class="card-title">State stability over time</div>
-          <div class="card-metric" id="metricRetentionRatio">—</div>
-          <div class="card-body" id="metricRetentionDetails">t50: — • τ: —</div>
-        </div>
 
-        <div class="card">
-          <div class="card-header">
-            <div class="card-label">Details</div>
-            <div class="card-tag">Raw JSON</div>
-          </div>
-          <div class="card-title">Characterization summary</div>
-          <div class="card-body">
-            <div class="small-muted">Loaded from <code>data/processed/characterization_summary.json</code>.</div>
-            <table class="metrics-table">
-              <thead>
-                <tr>
-                  <th>Metric</th>
-                  <th>Value</th>
-                  <th>Unit</th>
-                </tr>
-              </thead>
-              <tbody id="metricsTableBody">
-                <tr><td colspan="3">Loading…</td></tr>
-              </tbody>
-            </table>
-            <div class="plot-actions">
-              <a class="link-btn" href="data/processed/characterization_summary.json" target="_blank" rel="noopener">Open JSON</a>
-              <a class="link-btn" href="data/processed/characterization_summary.csv" target="_blank" rel="noopener">Open CSV</a>
+          <!-- Plots from memristor_simulated_run.py -->
+          <div class="plot-grid stack">
+            <div class="card plot-card">
+              <div class="card-header">
+                <div class="card-label">Plot</div>
+                <div class="card-tag">I–V sweep</div>
+              </div>
+              <img class="plot-img" src="data/final%20values/sim_iv_sweep.png" alt="I–V sweep plot (simulated)"
+                   onerror="if(!this.dataset.triedFallback){this.dataset.triedFallback='1'; this.src='data/final%20values/iv_sweep_0_to_1V.png'; this.parentElement.querySelector('.plot-caption').textContent='iv_sweep_0_to_1V.png (fallback)';}else{this.style.display='none'; this.parentElement.querySelector('.plot-missing').style.display='block';}" />
+              <div class="plot-missing small-muted" style="display:none;">Plot not found. Run <code>python synthesis/memristor_simulated_run.py --export-csv</code>.</div>
+              <div class="plot-caption">sim_iv_sweep.png</div>
+              <div class="plot-actions">
+                <a class="link-btn" href="data/final%20values/sim_iv_sweep_0_to_3.3V.csv" target="_blank" rel="noopener">Open CSV</a>
+                <a class="link-btn" href="data/final%20values/sim_iv_sweep.png" target="_blank" rel="noopener">Open PNG</a>
+              </div>
+            </div>
+
+            <div class="card plot-card">
+              <div class="card-header">
+                <div class="card-label">Plot</div>
+                <div class="card-tag">Hysteresis</div>
+              </div>
+              <img class="plot-img" src="data/final%20values/sim_iv_hysteresis.png" alt="I–V hysteresis sweep plot (simulated)"
+                   onerror="if(!this.dataset.triedFallback){this.dataset.triedFallback='1'; this.src='data/final%20values/iv_sweep_hysteresis_0_to_1V.png'; this.parentElement.querySelector('.plot-caption').textContent='iv_sweep_hysteresis_0_to_1V.png (fallback)';}else{this.style.display='none'; this.parentElement.querySelector('.plot-missing').style.display='block';}" />
+              <div class="plot-missing small-muted" style="display:none;">Plot not found. Run <code>python synthesis/memristor_simulated_run.py --export-csv</code>.</div>
+              <div class="plot-caption">sim_iv_hysteresis.png</div>
+              <div class="plot-actions">
+                <a class="link-btn" href="data/final%20values/sim_iv_sweep_hysteresis_0_to_3.3V.csv" target="_blank" rel="noopener">Open CSV</a>
+                <a class="link-btn" href="data/final%20values/sim_iv_hysteresis.png" target="_blank" rel="noopener">Open PNG</a>
+              </div>
+            </div>
+
+            <div class="card plot-card">
+              <div class="card-header">
+                <div class="card-label">Plot</div>
+                <div class="card-tag">Pulse train</div>
+              </div>
+              <img class="plot-img" src="data/final%20values/sim_pulse_train.png" alt="Pulse train current plot (simulated)"
+                   onerror="if(!this.dataset.triedFallback){this.dataset.triedFallback='1'; this.src='data/final%20values/pulse_train.png'; this.parentElement.querySelector('.plot-caption').textContent='pulse_train.png (fallback)';}else{this.style.display='none'; this.parentElement.querySelector('.plot-missing').style.display='block';}" />
+              <div class="plot-missing small-muted" style="display:none;">Plot not found. Run <code>python synthesis/memristor_simulated_run.py --export-csv</code>.</div>
+              <div class="plot-caption">sim_pulse_train.png</div>
+              <div class="plot-actions">
+                <a class="link-btn" href="data/final%20values/sim_pulse_train.csv" target="_blank" rel="noopener">Open CSV</a>
+                <a class="link-btn" href="data/final%20values/sim_pulse_train.png" target="_blank" rel="noopener">Open PNG</a>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- Plots from memristor_run_and_plot.py -->
-      <div class="plot-grid">
-        <div class="card plot-card">
-          <div class="card-header">
-            <div class="card-label">Plot</div>
-            <div class="card-tag">I–V sweep</div>
-          </div>
-          <img class="plot-img" src="data/final%20values/iv_sweep_0_to_1V.png" alt="I–V sweep plot (0 to 1V)" onerror="this.style.display='none'; this.parentElement.querySelector('.plot-missing').style.display='block';" />
-          <div class="plot-missing small-muted" style="display:none;">Plot not found. Run <code>synthesis/memristor_run_and_plot.py</code>.</div>
-          <div class="plot-caption">iv_sweep_0_to_1V.png</div>
-          <div class="plot-actions">
-            <a class="link-btn" href="data/final%20values/iv_sweep_0_to_1V.csv" target="_blank" rel="noopener">Open CSV</a>
-            <a class="link-btn" href="data/final%20values/iv_sweep_0_to_1V.png" target="_blank" rel="noopener">Open PNG</a>
-          </div>
-        </div>
-
-        <div class="card plot-card">
-          <div class="card-header">
-            <div class="card-label">Plot</div>
-            <div class="card-tag">Hysteresis</div>
-          </div>
-          <img class="plot-img" src="data/final%20values/iv_sweep_hysteresis_0_to_1V.png" alt="I–V hysteresis sweep plot" onerror="this.style.display='none'; this.parentElement.querySelector('.plot-missing').style.display='block';" />
-          <div class="plot-missing small-muted" style="display:none;">Plot not found. Run <code>synthesis/memristor_run_and_plot.py</code>.</div>
-          <div class="plot-caption">iv_sweep_hysteresis_0_to_1V.png</div>
-          <div class="plot-actions">
-            <a class="link-btn" href="data/final%20values/iv_sweep_hysteresis_0_to_1V.csv" target="_blank" rel="noopener">Open CSV</a>
-            <a class="link-btn" href="data/final%20values/iv_sweep_hysteresis_0_to_1V.png" target="_blank" rel="noopener">Open PNG</a>
-          </div>
-        </div>
-
-        <div class="card plot-card">
-          <div class="card-header">
-            <div class="card-label">Plot</div>
-            <div class="card-tag">Pulse train</div>
-          </div>
-          <img class="plot-img" src="data/final%20values/pulse_train.png" alt="Pulse train current plot" onerror="this.style.display='none'; this.parentElement.querySelector('.plot-missing').style.display='block';" />
-          <div class="plot-missing small-muted" style="display:none;">Plot not found. Run <code>synthesis/memristor_run_and_plot.py</code>.</div>
-          <div class="plot-caption">pulse_train.png</div>
-          <div class="plot-actions">
-            <a class="link-btn" href="data/final%20values/pulse_train.csv" target="_blank" rel="noopener">Open CSV</a>
-            <a class="link-btn" href="data/final%20values/pulse_train.png" target="_blank" rel="noopener">Open PNG</a>
+        <div class="live-right">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-label">Details</div>
+              <div class="card-tag">Raw JSON</div>
+            </div>
+            <div class="card-title">Characterization summary</div>
+            <div class="card-body">
+              <div class="small-muted">Loaded from <code>data/processed/characterization_summary.json</code>.</div>
+              <table class="metrics-table">
+                <thead>
+                  <tr>
+                    <th>Metric</th>
+                    <th>Value</th>
+                    <th>Unit</th>
+                  </tr>
+                </thead>
+                <tbody id="metricsTableBody">
+                  <tr><td colspan="3">Loading…</td></tr>
+                </tbody>
+              </table>
+              <div class="plot-actions">
+                <a class="link-btn" href="data/processed/characterization_summary.json" target="_blank" rel="noopener">Open JSON</a>
+                <a class="link-btn" href="data/processed/characterization_summary.csv" target="_blank" rel="noopener">Open CSV</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>

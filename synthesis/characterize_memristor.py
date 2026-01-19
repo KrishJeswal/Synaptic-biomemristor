@@ -246,6 +246,17 @@ def compute_iv_metrics_from_csv(
     make_plot: bool = True,
     plots_dir: str | Path = "data/plots",
 ) -> IVMetricsSimple:
+    """Compute basic I–V characterization metrics.
+
+    Supports both:
+      1) Hardware-style logs: columns like V / I_A
+      2) Simulated logs (memristor_simulated_run.py input): voltage_V/current_A
+         plus optional cycle/direction/index_in_sweep.
+
+    For simulated logs with multiple cycles, we automatically select the
+    latest (max) cycle.
+    """
+
     df = _read_csv_flexible(iv_csv_path)
     notes = ""
 
@@ -253,14 +264,58 @@ def compute_iv_metrics_from_csv(
         raise ValueError(
             f"IV CSV must contain voltage/current columns. Found: {list(df.columns)}"
         )
-    df = df.dropna(subset=["voltage_V", "current_A"]).copy()
-    df = df.sort_index().reset_index(drop=True)
 
-    b1, b2 = _split_branches(df[["voltage_V", "current_A"]].copy())
+    df = df.dropna(subset=["voltage_V", "current_A"]).copy()
+
+    # --- simulated dataset support: pick one cycle ---
+    if "cycle" in df.columns:
+        try:
+            cyc = pd.to_numeric(df["cycle"], errors="coerce").dropna().astype(int)
+            if not cyc.empty:
+                chosen_cycle = int(cyc.max())
+                df = df[cyc.reindex(df.index).fillna(chosen_cycle).astype(int) == chosen_cycle].copy()
+                notes += f"Selected cycle={chosen_cycle} from simulated IV log. "
+        except Exception:
+            pass
+
+    # Prefer the provided sweep order if available
+    if "time_s" in df.columns:
+        df = df.sort_values("time_s", kind="stable")
+    elif "index_in_sweep" in df.columns:
+        df = df.sort_values(["index_in_sweep"], kind="stable")
+    else:
+        df = df.sort_index().reset_index(drop=True)
+
+    # --- branch split ---
+    b1: pd.DataFrame
+    b2: pd.DataFrame
+
+    if "direction" in df.columns:
+        d = df["direction"].astype(str).str.lower()
+        fwd = df[d.str.contains("forward")].copy()
+        rev = df[d.str.contains("reverse")].copy()
+
+        if not fwd.empty and not rev.empty:
+            if "index_in_sweep" in df.columns:
+                fwd = fwd.sort_values(["index_in_sweep"], kind="stable")
+                rev = rev.sort_values(["index_in_sweep"], kind="stable")
+            elif "time_s" in df.columns:
+                fwd = fwd.sort_values(["time_s"], kind="stable")
+                rev = rev.sort_values(["time_s"], kind="stable")
+
+            b1 = fwd[["voltage_V", "current_A"]].copy()
+            b2 = rev[["voltage_V", "current_A"]].copy()
+        else:
+            b1, b2 = _split_branches(df[["voltage_V", "current_A"]].copy())
+    else:
+        b1, b2 = _split_branches(df[["voltage_V", "current_A"]].copy())
+
     area = _hysteresis_area(b1, b2)
 
+    # ON/OFF via the 2 branches around Vread
     i1 = _closest_current_at_v(b1, abs(vread_V))
     i2 = _closest_current_at_v(b2, abs(vread_V))
+
     ion = None
     ioff = None
     ratio = None
@@ -272,6 +327,7 @@ def compute_iv_metrics_from_csv(
         candidates.append(abs(float(i1)))
     if i2 is not None:
         candidates.append(abs(float(i2)))
+
     if len(candidates) >= 2:
         ion = float(max(candidates))
         ioff = float(min(candidates))
@@ -290,8 +346,10 @@ def compute_iv_metrics_from_csv(
     if ioff is not None and ioff > 0:
         roff = float(abs(vread_V) / ioff)
 
+    # Switch thresholds
     vset_branch = b1
     vreset_branch = b2
+
     if df["voltage_V"].min() < 0 and df["voltage_V"].max() > 0:
         b1_pos = b1[b1["voltage_V"] >= 0]
         b2_neg = b2[b2["voltage_V"] <= 0]
@@ -302,6 +360,7 @@ def compute_iv_metrics_from_csv(
 
     vset = _detect_switch_voltage(vset_branch, "set")
     vreset = _detect_switch_voltage(vreset_branch, "reset")
+
     if vset is None:
         notes += "No clear SET jump detected. "
     if vreset is None:
@@ -313,6 +372,7 @@ def compute_iv_metrics_from_csv(
         plt.figure()
         plt.plot(b1["voltage_V"], b1["current_A"], marker="o", linewidth=1, label="Branch 1")
         plt.plot(b2["voltage_V"], b2["current_A"], marker="o", linewidth=1, label="Branch 2")
+
         title_bits = []
         if ratio is not None:
             title_bits.append(f"ON/OFF={ratio:.2g}@{vread_V:.2g}V")
@@ -322,12 +382,14 @@ def compute_iv_metrics_from_csv(
             title_bits.append(f"Vreset={vreset:.2g}V")
         if area is not None:
             title_bits.append(f"Area={area:.2e}")
+
         title = "I–V Characterization" + (" (" + ", ".join(title_bits) + ")" if title_bits else "")
         plt.title(title)
         plt.xlabel("Voltage (V)")
         plt.ylabel("Current (A)")
         plt.grid(True)
         plt.legend()
+
         out_plot = plots_p / f"iv_characterization_{Path(iv_csv_path).stem}.png"
         plt.savefig(out_plot, bbox_inches="tight")
         plt.close()
@@ -345,6 +407,7 @@ def compute_iv_metrics_from_csv(
         hysteresis_area=area,
         notes=notes.strip(),
     )
+
 
 @dataclass
 class EnduranceMetricsSimple:
@@ -366,11 +429,33 @@ def compute_endurance_metrics_from_csv(
     make_plot: bool = True,
     plots_dir: str | Path = "data/plots",
 ) -> EnduranceMetricsSimple:
+    """Compute endurance / pulse stability metrics.
+
+    Works on:
+      - Hardware pulse CSVs (typically V/I per pulse)
+      - Simulated pulse-train logs (sim_pulse_train.csv) that include
+        pulse_number + phase (pulse_high/read_low) + time_s.
+
+    For the simulated pulse-train format, we automatically filter to
+    phase='pulse_high' to avoid duplicate pulse_number rows.
+    """
+
     df = _read_csv_flexible(endurance_csv_path)
     notes = ""
 
     if df.empty:
         raise ValueError("Endurance CSV is empty")
+
+    # Simulated pulse-train logs contain both write pulses + readbacks.
+    # For endurance/stability, default to write pulses (pulse_high).
+    if "phase" in df.columns:
+        phase_l = df["phase"].astype(str).str.lower()
+        if phase_l.str.contains("pulse_high").any() and not phase_l.str.contains("set|reset").any():
+            df = df[phase_l.str.contains("pulse_high")].copy()
+            notes += "Filtered to phase='pulse_high' for endurance metrics (simulated pulse-train). "
+
+    if df.empty:
+        raise ValueError("Endurance CSV became empty after filtering")
 
     if "pulse_number" not in df.columns:
         df = df.copy()
@@ -393,7 +478,7 @@ def compute_endurance_metrics_from_csv(
             )
 
     df = df.dropna(subset=["pulse_number", "conductance_S"]).copy()
-    df["pulse_number"] = df["pulse_number"].astype(int)
+    df["pulse_number"] = pd.to_numeric(df["pulse_number"], errors="coerce").astype(int)
     df = df.sort_values("pulse_number")
 
     n = int(len(df))
@@ -405,10 +490,12 @@ def compute_endurance_metrics_from_csv(
     ratio_mean = None
     failure_cycle = None
 
+    # Phase-based SET/RESET split (hardware endurance cycling)
     if "phase" in df.columns:
         phase_s = df["phase"].astype(str).str.upper()
         lrs_df = df[phase_s.str.contains("SET")]
         hrs_df = df[phase_s.str.contains("RESET")]
+
         if not lrs_df.empty:
             g_lrs = float(lrs_df["conductance_S"].mean())
         if not hrs_df.empty:
@@ -421,16 +508,36 @@ def compute_endurance_metrics_from_csv(
             hrs_by = hrs_df.groupby("pulse_number")["conductance_S"].mean()
             common = lrs_by.index.intersection(hrs_by.index)
             if len(common) >= 3:
-                ratios = (lrs_by.loc[common].abs() / hrs_by.loc[common].abs()).replace([np.inf, -np.inf], np.nan)
+                ratios = (
+                    lrs_by.loc[common].abs() / hrs_by.loc[common].abs()
+                ).replace([np.inf, -np.inf], np.nan)
                 ratios = ratios.dropna()
                 if not ratios.empty:
                     bad = ratios[ratios < float(ratio_fail_threshold)]
                     if not bad.empty:
                         failure_cycle = int(bad.index.min())
+
+        if g_lrs is None and g_hrs is None:
+            notes += "Phase column present but no SET/RESET rows; using early/late window estimate. "
     else:
-        notes += "No phase column; LRS/HRS ratio is not directly measurable. "
+        notes += "No phase column; using early/late window estimate for HRS/LRS. "
 
     g = df["conductance_S"].to_numpy(dtype=float)
+
+    # Fallback: estimate HRS/LRS from early vs late points
+    if (g_lrs is None or g_hrs is None) and n >= 6:
+        w_est = max(3, int(round(0.1 * n)))
+        g_hrs_est = float(np.nanmean(np.abs(g[:w_est])))
+        g_lrs_est = float(np.nanmean(np.abs(g[-w_est:])))
+        if np.isfinite(g_hrs_est) and g_hrs_est > 1e-18 and np.isfinite(g_lrs_est):
+            if g_hrs is None:
+                g_hrs = g_hrs_est
+            if g_lrs is None:
+                g_lrs = g_lrs_est
+            if ratio_mean is None:
+                ratio_mean = float(g_lrs_est / g_hrs_est)
+            notes += f"Estimated HRS/LRS using first/last {w_est} points. "
+
     g0 = float(g[0])
     g_end = float(g[-1])
     drift_pct = None
@@ -451,18 +558,8 @@ def compute_endurance_metrics_from_csv(
         plots_p = _resolve_path(plots_dir)
         plots_p.mkdir(parents=True, exist_ok=True)
         plt.figure()
-        if "phase" in df.columns:
-            phase_s = df["phase"].astype(str).str.upper()
-            lrs_df = df[phase_s.str.contains("SET")]
-            hrs_df = df[phase_s.str.contains("RESET")]
-            if not lrs_df.empty:
-                plt.plot(lrs_df["pulse_number"], lrs_df["conductance_S"], marker="o", linewidth=1, label="LRS")
-            if not hrs_df.empty:
-                plt.plot(hrs_df["pulse_number"], hrs_df["conductance_S"], marker="o", linewidth=1, label="HRS")
-            plt.title("Endurance Cycling")
-        else:
-            plt.plot(df["pulse_number"], df["conductance_S"], marker="o", linewidth=1, label="Conductance")
-            plt.title("Endurance / Pulse Stability")
+        plt.plot(df["pulse_number"], df["conductance_S"], marker="o", linewidth=1, label="Conductance")
+        plt.title("Endurance / Pulse Stability")
         plt.xlabel("Cycle / Pulse")
         plt.ylabel("Conductance (S)")
         plt.grid(True)
@@ -482,6 +579,7 @@ def compute_endurance_metrics_from_csv(
         failure_cycle=failure_cycle,
         notes=notes.strip(),
     )
+
 
 @dataclass
 class RetentionMetricsSimple:
@@ -524,11 +622,30 @@ def compute_retention_metrics_from_csv(
     make_plot: bool = True,
     plots_dir: str | Path = "data/plots",
 ) -> RetentionMetricsSimple:
+    """Compute retention metrics.
+
+    Works on:
+      - Dedicated retention logs (conductance vs time)
+      - Simulated pulse-train logs (sim_pulse_train.csv): we automatically
+        filter to phase='read_low' if present.
+      - Hardware pulse CSVs without time: we infer time from row index.
+    """
+
     df = _read_csv_flexible(retention_csv_path)
     notes = ""
 
     if df.empty:
         raise ValueError("Retention CSV is empty")
+
+    # Simulated pulse-train has readback points labeled 'read_low'
+    if "phase" in df.columns:
+        phase_l = df["phase"].astype(str).str.lower()
+        if phase_l.str.contains("read_low").any():
+            df = df[phase_l.str.contains("read_low")].copy()
+            notes += "Filtered to phase='read_low' for retention metrics (simulated pulse-train). "
+
+    if df.empty:
+        raise ValueError("Retention CSV became empty after filtering")
 
     if "conductance_S" not in df.columns:
         raise ValueError(
@@ -536,24 +653,26 @@ def compute_retention_metrics_from_csv(
             f"Found: {list(df.columns)}"
         )
 
+    # If time is missing, infer from pulse_number or row index
     if "time_s" not in df.columns:
-        if "pulse_number" in df.columns:
-            if dt_s_if_missing is None:
-                dt_s_if_missing = 1.0
-                notes += "No time column; inferred time from pulse_number using dt=1.0s. "
-            else:
-                notes += f"No time column; inferred time from pulse_number using dt={dt_s_if_missing}s. "
-            p = df["pulse_number"].astype(float)
-            df["time_s"] = (p - float(p.min())) * float(dt_s_if_missing)
+        if "pulse_number" not in df.columns:
+            df = df.copy()
+            df["pulse_number"] = np.arange(1, len(df) + 1, dtype=float)
+            notes += "No time/pulse columns; used row index as pulse_number. "
+
+        if dt_s_if_missing is None:
+            dt_s_if_missing = 1.0
+            notes += "No time column; inferred time from pulse_number using dt=1.0s. "
         else:
-            raise ValueError(
-                "Retention CSV must contain time_s/time_ms (or a pulse_number to infer time). "
-                f"Found: {list(df.columns)}"
-            )
+            notes += f"No time column; inferred time from pulse_number using dt={dt_s_if_missing}s. "
+
+        p = pd.to_numeric(df["pulse_number"], errors="coerce").astype(float)
+        df["time_s"] = (p - float(p.min())) * float(dt_s_if_missing)
 
     df = df.dropna(subset=["time_s", "conductance_S"]).copy().sort_values("time_s")
     t = df["time_s"].to_numpy(dtype=float)
     g = df["conductance_S"].to_numpy(dtype=float)
+
     n = int(len(df))
     if n < 2:
         raise ValueError("Not enough retention points")
@@ -562,6 +681,7 @@ def compute_retention_metrics_from_csv(
     t_end = float(t[-1])
     g0 = float(g[0])
     g_end = float(g[-1])
+
     retention_ratio = None
     if np.isfinite(g0) and abs(g0) > 1e-18 and np.isfinite(g_end):
         retention_ratio = float(g_end / g0)
@@ -603,13 +723,15 @@ def compute_retention_metrics_from_csv(
             plt.plot(t, g, marker="o", linewidth=1)
             plt.xlabel("Time (s)")
         plt.ylabel("Conductance (S)")
+
         title_bits = []
         if retention_ratio is not None:
             title_bits.append(f"G_end/G0={retention_ratio:.3f}")
         if t50 is not None:
-            title_bits.append(f"t50={t50:.1f}s")
+            title_bits.append(f"t50={t50:.2f}s")
         if tau is not None:
-            title_bits.append(f"tau={tau:.1f}s")
+            title_bits.append(f"tau={tau:.2f}s")
+
         plt.title("Retention" + (" (" + ", ".join(title_bits) + ")" if title_bits else ""))
         plt.grid(True)
         out_plot = plots_p / f"retention_characterization_{Path(retention_csv_path).stem}.png"
@@ -629,6 +751,7 @@ def compute_retention_metrics_from_csv(
         notes=notes.strip(),
     )
 
+
 @dataclass
 class CharacterizationSummary:
     iv: Optional[IVMetricsSimple]
@@ -637,42 +760,64 @@ class CharacterizationSummary:
     notes: str
 
 def _guess_csvs_from_dir(input_dir: Path) -> Dict[str, Path]:
+    """Auto-detect likely IV / endurance / retention CSVs from a folder.
+
+    Updated to support outputs from memristor_simulated_run.py.
+
+    Priority rules (when multiple CSVs exist):
+      - Prefer simulated outputs (filenames containing 'sim_') over hardware logs
+      - Prefer hysteresis I–V logs for richer IV metrics
+      - Use pulse_train as both endurance + retention fallback when needed
+    """
+
     out: Dict[str, Path] = {}
-    csvs = sorted([p for p in input_dir.glob("*.csv") if p.is_file()])
+    csvs = sorted([p for p in input_dir.glob('*.csv') if p.is_file()])
     if not csvs:
         return out
 
-    for p in csvs:
-        name = p.name.lower()
-        if "iv" in name and "sweep" in name:
-            out["iv"] = p
-            break
-    if "iv" not in out:
-        for p in csvs:
-            name = p.name.lower()
-            if "iv" in name:
-                out["iv"] = p
-                break
+    def first_match(preds):
+        for pred in preds:
+            for p in csvs:
+                name = p.name.lower()
+                if pred(name):
+                    return p
+        return None
 
-    for p in csvs:
-        name = p.name.lower()
-        if "endurance" in name or "cycle" in name:
-            out["endurance"] = p
-            break
+    # IV
+    iv_p = first_match([
+        lambda n: ('sim' in n) and ('iv' in n) and ('hysteresis' in n),
+        lambda n: ('sim' in n) and ('iv' in n) and ('sweep' in n),
+        lambda n: ('iv' in n) and ('hysteresis' in n),
+        lambda n: ('iv' in n) and ('sweep' in n),
+        lambda n: ('iv' in n),
+    ])
+    if iv_p is not None:
+        out['iv'] = iv_p
 
-    for p in csvs:
-        name = p.name.lower()
-        if "pulse" in name and "train" in name:
-            out.setdefault("endurance", p)
-            break
+    # Endurance
+    end_p = first_match([
+        lambda n: ('sim' in n) and ('pulse' in n) and ('train' in n),
+        lambda n: ('endurance' in n) or ('cycle' in n),
+        lambda n: ('pulse' in n) and ('train' in n),
+    ])
+    if end_p is not None:
+        out['endurance'] = end_p
 
-    for p in csvs:
-        name = p.name.lower()
-        if "retention" in name:
-            out["retention"] = p
-            break
+    # Retention
+    ret_p = first_match([
+        lambda n: 'retention' in n,
+        lambda n: ('sim' in n) and ('pulse' in n) and ('train' in n),
+        lambda n: ('pulse' in n) and ('train' in n),
+    ])
+    if ret_p is not None:
+        out['retention'] = ret_p
+
+    # If there's no dedicated retention file but we have endurance, reuse it
+    if 'retention' not in out and 'endurance' in out:
+        out['retention'] = out['endurance']
 
     return out
+
 
 def write_summary_files(
     summary: CharacterizationSummary,
