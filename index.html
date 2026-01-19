@@ -289,6 +289,141 @@ header {
 .abstract-card .card-body {
   font-size: 16px;
 }
+
+
+/* Live Results (Experiment) */
+.live-note {
+  margin: 10px 0 18px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(5, 7, 15, 0.75);
+  color: var(--text-muted);
+  box-shadow: 0 16px 32px rgba(0,0,0,0.55);
+}
+
+.live-note strong {
+  color: #e5e7eb;
+}
+
+.plot-grid {
+  display: grid;
+  gap: 16px;
+}
+
+@media (min-width: 900px) {
+  .plot-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.plot-card {
+  padding: 14px;
+}
+
+.plot-img {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(2, 7, 21, 0.85);
+}
+
+.plot-caption {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.plot-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(15, 23, 42, 0.85);
+  color: #e5e7eb;
+  text-decoration: none;
+}
+
+.link-btn:hover {
+  border-color: rgba(147, 197, 253, 0.65);
+  box-shadow: 0 0 18px rgba(59, 130, 246, 0.25);
+}
+
+.small-muted {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.metrics-table th,
+.metrics-table td {
+  padding: 10px 12px;
+  font-size: 13px;
+  text-align: left;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.metrics-table th {
+  color: #e5e7eb;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  background: rgba(15, 23, 42, 0.75);
+}
+
+.metrics-table td {
+  color: var(--text-muted);
+}
+
+.metrics-table tr:last-child td {
+  border-bottom: none;
+}
+
+.badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(25, 79, 151, 0.18);
+  color: #e5e7eb;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #3b82f6;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.75);
+}
+
 </style>
 </head>
 <body>
@@ -357,6 +492,180 @@ Global e-waste exceeds 50 million tonnes per year, demanding sustainable alterna
 Bio-memristors offer low-cost, green hardware synapses for efficient neuromorphic computing.
 
 
+        </div>
+      </div>
+    
+
+    
+    </section>
+
+<!-- Live Experiment Results -->
+    <section class="section">
+      <div class="section-header">
+        <div class="section-pill"></div>
+        <div class="section-title">Live Experiment Results</div>
+        <div class="section-subtitle">From memristor_run_and_plot.py + characterize_memristor.py</div>
+      </div>
+
+      <div class="live-note">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <div>
+            <div class="badge-live"><span class="dot"></span> Latest run (local)</div>
+            <div class="small-muted" style="margin-top:6px;">
+              This section loads <strong>plots</strong> from <code>data/final values/</code> and <strong>metrics</strong> from <code>data/processed/characterization_summary.json</code>.
+              If you don’t see anything, run the scripts and refresh.
+            </div>
+          </div>
+          <div id="liveMetricsStatus" class="small-muted">Loading metrics…</div>
+        </div>
+      </div>
+
+      <!-- Live metrics cards (auto-filled) -->
+      <div class="card-grid cols-3" style="margin-bottom: 16px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">Vset</div>
+            <div class="card-tag">Live</div>
+          </div>
+          <div class="card-title">Set threshold (HRS → LRS)</div>
+          <div class="card-metric" id="metricVset">—</div>
+          <div class="card-body" id="metricVsetNote">Detected from I–V jump (if present).</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">Vreset</div>
+            <div class="card-tag">Live</div>
+          </div>
+          <div class="card-title">Reset threshold (LRS → HRS)</div>
+          <div class="card-metric" id="metricVreset">—</div>
+          <div class="card-body" id="metricVresetNote">Detected from I–V drop (if present).</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">ON/OFF</div>
+            <div class="card-tag">At Vread</div>
+          </div>
+          <div class="card-title">Resistance window</div>
+          <div class="card-metric" id="metricOnOff">—</div>
+          <div class="card-body" id="metricVread">Vread: —</div>
+        </div>
+      </div>
+
+      <div class="card-grid cols-3" style="margin-bottom: 16px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">ION</div>
+            <div class="card-tag">Live</div>
+          </div>
+          <div class="card-title">ON-state current</div>
+          <div class="card-metric" id="metricIon">—</div>
+          <div class="card-body">Measured at Vread on the ON branch.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">IOFF</div>
+            <div class="card-tag">Live</div>
+          </div>
+          <div class="card-title">OFF-state current</div>
+          <div class="card-metric" id="metricIoff">—</div>
+          <div class="card-body">Measured at Vread on the OFF branch.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">Endurance</div>
+            <div class="card-tag">Cycles</div>
+          </div>
+          <div class="card-title">Cycling stability</div>
+          <div class="card-metric" id="metricCycles">—</div>
+          <div class="card-body" id="metricFailure">Failure cycle: —</div>
+        </div>
+      </div>
+
+      <div class="card-grid cols-2" style="margin-bottom: 16px;">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">Retention</div>
+            <div class="card-tag">Live</div>
+          </div>
+          <div class="card-title">State stability over time</div>
+          <div class="card-metric" id="metricRetentionRatio">—</div>
+          <div class="card-body" id="metricRetentionDetails">t50: — • τ: —</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-label">Details</div>
+            <div class="card-tag">Raw JSON</div>
+          </div>
+          <div class="card-title">Characterization summary</div>
+          <div class="card-body">
+            <div class="small-muted">Loaded from <code>data/processed/characterization_summary.json</code>.</div>
+            <table class="metrics-table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Value</th>
+                  <th>Unit</th>
+                </tr>
+              </thead>
+              <tbody id="metricsTableBody">
+                <tr><td colspan="3">Loading…</td></tr>
+              </tbody>
+            </table>
+            <div class="plot-actions">
+              <a class="link-btn" href="data/processed/characterization_summary.json" target="_blank" rel="noopener">Open JSON</a>
+              <a class="link-btn" href="data/processed/characterization_summary.csv" target="_blank" rel="noopener">Open CSV</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plots from memristor_run_and_plot.py -->
+      <div class="plot-grid">
+        <div class="card plot-card">
+          <div class="card-header">
+            <div class="card-label">Plot</div>
+            <div class="card-tag">I–V sweep</div>
+          </div>
+          <img class="plot-img" src="data/final%20values/iv_sweep_0_to_1V.png" alt="I–V sweep plot (0 to 1V)" onerror="this.style.display='none'; this.parentElement.querySelector('.plot-missing').style.display='block';" />
+          <div class="plot-missing small-muted" style="display:none;">Plot not found. Run <code>synthesis/memristor_run_and_plot.py</code>.</div>
+          <div class="plot-caption">iv_sweep_0_to_1V.png</div>
+          <div class="plot-actions">
+            <a class="link-btn" href="data/final%20values/iv_sweep_0_to_1V.csv" target="_blank" rel="noopener">Open CSV</a>
+            <a class="link-btn" href="data/final%20values/iv_sweep_0_to_1V.png" target="_blank" rel="noopener">Open PNG</a>
+          </div>
+        </div>
+
+        <div class="card plot-card">
+          <div class="card-header">
+            <div class="card-label">Plot</div>
+            <div class="card-tag">Hysteresis</div>
+          </div>
+          <img class="plot-img" src="data/final%20values/iv_sweep_hysteresis_0_to_1V.png" alt="I–V hysteresis sweep plot" onerror="this.style.display='none'; this.parentElement.querySelector('.plot-missing').style.display='block';" />
+          <div class="plot-missing small-muted" style="display:none;">Plot not found. Run <code>synthesis/memristor_run_and_plot.py</code>.</div>
+          <div class="plot-caption">iv_sweep_hysteresis_0_to_1V.png</div>
+          <div class="plot-actions">
+            <a class="link-btn" href="data/final%20values/iv_sweep_hysteresis_0_to_1V.csv" target="_blank" rel="noopener">Open CSV</a>
+            <a class="link-btn" href="data/final%20values/iv_sweep_hysteresis_0_to_1V.png" target="_blank" rel="noopener">Open PNG</a>
+          </div>
+        </div>
+
+        <div class="card plot-card">
+          <div class="card-header">
+            <div class="card-label">Plot</div>
+            <div class="card-tag">Pulse train</div>
+          </div>
+          <img class="plot-img" src="data/final%20values/pulse_train.png" alt="Pulse train current plot" onerror="this.style.display='none'; this.parentElement.querySelector('.plot-missing').style.display='block';" />
+          <div class="plot-missing small-muted" style="display:none;">Plot not found. Run <code>synthesis/memristor_run_and_plot.py</code>.</div>
+          <div class="plot-caption">pulse_train.png</div>
+          <div class="plot-actions">
+            <a class="link-btn" href="data/final%20values/pulse_train.csv" target="_blank" rel="noopener">Open CSV</a>
+            <a class="link-btn" href="data/final%20values/pulse_train.png" target="_blank" rel="noopener">Open PNG</a>
+          </div>
         </div>
       </div>
     </section>
@@ -545,5 +854,155 @@ LTD non-linearity is NL-LTD ≈ −1.93 (strong non-linear depression).
     </section>
 
   </div>
+
+
+<script>
+(function () {
+  const statusEl = document.getElementById('liveMetricsStatus');
+  const tableBody = document.getElementById('metricsTableBody');
+
+  const el = {
+    vset: document.getElementById('metricVset'),
+    vreset: document.getElementById('metricVreset'),
+    onoff: document.getElementById('metricOnOff'),
+    vread: document.getElementById('metricVread'),
+    ion: document.getElementById('metricIon'),
+    ioff: document.getElementById('metricIoff'),
+    cycles: document.getElementById('metricCycles'),
+    failure: document.getElementById('metricFailure'),
+    rr: document.getElementById('metricRetentionRatio'),
+    rd: document.getElementById('metricRetentionDetails'),
+  };
+
+  function isFiniteNumber(x) {
+    return typeof x === 'number' && Number.isFinite(x);
+  }
+
+  function fmtNumber(x, sig = 4) {
+    if (!isFiniteNumber(x)) return null;
+    const abs = Math.abs(x);
+    if (abs !== 0 && (abs < 1e-3 || abs >= 1e4)) {
+      return x.toExponential(2);
+    }
+    const s = x.toPrecision(sig);
+    return s.replace(/\.0+($|e)/, '$1').replace(/(\.[0-9]*?)0+($|e)/, '$1$2');
+  }
+
+  function withUnit(val, unit, sig = 4) {
+    const s = fmtNumber(val, sig);
+    if (s === null) return '—';
+    return unit ? `${s} ${unit}` : s;
+  }
+
+  function setText(node, text) {
+    if (!node) return;
+    node.textContent = text;
+  }
+
+  function setHTML(node, html) {
+    if (!node) return;
+    node.innerHTML = html;
+  }
+
+  async function loadJson(url) {
+    const res = await fetch(url, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  }
+
+  function buildRows(summary) {
+    const rows = [];
+
+    const iv = summary?.iv || null;
+    if (iv) {
+      rows.push(['Vread', fmtNumber(iv.vread_V, 4) ?? '—', 'V']);
+      rows.push(['ION', fmtNumber(iv.ion_A, 4) ?? '—', 'A']);
+      rows.push(['IOFF', fmtNumber(iv.ioff_A, 4) ?? '—', 'A']);
+      rows.push(['ON/OFF ratio', fmtNumber(iv.on_off_ratio, 4) ?? '—', '']);
+      rows.push(['RON', fmtNumber(iv.ron_Ohm, 4) ?? '—', 'Ω']);
+      rows.push(['ROFF', fmtNumber(iv.roff_Ohm, 4) ?? '—', 'Ω']);
+      rows.push(['Vset', fmtNumber(iv.vset_V, 4) ?? '—', 'V']);
+      rows.push(['Vreset', fmtNumber(iv.vreset_V, 4) ?? '—', 'V']);
+      rows.push(['Hysteresis area', fmtNumber(iv.hysteresis_area, 4) ?? '—', 'A·V']);
+    }
+
+    const en = summary?.endurance || null;
+    if (en) {
+      rows.push(['Endurance cycles', String(en.n_cycles ?? '—'), 'cycles']);
+      rows.push(['Mean ON/OFF (G)', fmtNumber(en.on_off_ratio_mean, 4) ?? '—', '']);
+      rows.push(['Drift (overall)', fmtNumber(en.drift_pct_overall, 4) ?? '—', '%']);
+      rows.push(['CV (last window)', fmtNumber(en.cv_last_window, 4) ?? '—', '']);
+      rows.push(['Failure cycle', en.failure_cycle != null ? String(en.failure_cycle) : '—', '']);
+    }
+
+    const rt = summary?.retention || null;
+    if (rt) {
+      rows.push(['Retention ratio (G_end/G0)', fmtNumber(rt.retention_ratio, 4) ?? '—', '']);
+      rows.push(['t50', fmtNumber(rt.t50_s, 4) ?? '—', 's']);
+      rows.push(['τ (tau)', fmtNumber(rt.tau_s, 4) ?? '—', 's']);
+      rows.push(['Exp fit R²', fmtNumber(rt.r2_exp, 4) ?? '—', '']);
+      rows.push(['t_end', fmtNumber(rt.t_end_s, 4) ?? '—', 's']);
+    }
+
+    return rows;
+  }
+
+  function renderTable(rows) {
+    if (!tableBody) return;
+    if (!rows.length) {
+      tableBody.innerHTML = '<tr><td colspan="3">No metrics found yet. Run characterize_memristor.py and refresh.</td></tr>';
+      return;
+    }
+    tableBody.innerHTML = rows
+      .map(([k, v, u]) => `<tr><td>${k}</td><td>${v}</td><td>${u}</td></tr>`)
+      .join('');
+  }
+
+  function renderCards(summary) {
+    const iv = summary?.iv || null;
+    const en = summary?.endurance || null;
+    const rt = summary?.retention || null;
+
+    setText(el.vset, iv && iv.vset_V != null ? withUnit(iv.vset_V, 'V', 4) : '—');
+    setText(el.vreset, iv && iv.vreset_V != null ? withUnit(iv.vreset_V, 'V', 4) : '—');
+
+    const ratio = iv?.on_off_ratio;
+    setText(el.onoff, ratio != null ? fmtNumber(ratio, 4) ?? '—' : '—');
+
+    setText(el.vread, `Vread: ${iv?.vread_V != null ? withUnit(iv.vread_V, 'V', 4) : '—'}`);
+
+    setText(el.ion, iv?.ion_A != null ? withUnit(iv.ion_A, 'A', 4) : '—');
+    setText(el.ioff, iv?.ioff_A != null ? withUnit(iv.ioff_A, 'A', 4) : '—');
+
+    setText(el.cycles, en?.n_cycles != null ? `${en.n_cycles}` : '—');
+    setText(el.failure, `Failure cycle: ${en?.failure_cycle != null ? en.failure_cycle : '—'}`);
+
+    setText(el.rr, rt?.retention_ratio != null ? fmtNumber(rt.retention_ratio, 4) ?? '—' : '—');
+    const t50 = rt?.t50_s;
+    const tau = rt?.tau_s;
+    setText(el.rd, `t50: ${t50 != null ? withUnit(t50, 's', 4) : '—'} • τ: ${tau != null ? withUnit(tau, 's', 4) : '—'}`);
+  }
+
+  async function init() {
+    if (!statusEl) return;
+
+    try {
+      const summary = await loadJson('data/processed/characterization_summary.json');
+      renderCards(summary);
+      renderTable(buildRows(summary));
+      const now = new Date();
+      statusEl.textContent = `Metrics loaded ✓  (${now.toLocaleString()})`;
+    } catch (err) {
+      statusEl.textContent = 'Metrics not found. Run characterize_memristor.py and refresh.';
+      if (tableBody) {
+        tableBody.innerHTML = '<tr><td colspan="3">characterization_summary.json not found yet.</td></tr>';
+      }
+    }
+  }
+
+  init();
+})();
+</script>
+
 </body>
 </html>
